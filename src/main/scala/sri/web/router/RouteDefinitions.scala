@@ -2,7 +2,7 @@ package sri.web.router
 
 import sri.core.ReactElement
 
-private[router] trait WebRouteDefinitions {
+private[router] trait RouteDefinitions {
 
 //  /**
 //   * use this method define static routes in app

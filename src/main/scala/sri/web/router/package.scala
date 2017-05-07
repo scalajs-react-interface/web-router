@@ -24,6 +24,6 @@ package object router {
   }
 
   @inline
-  def getWebRouterScreenName[C <: WebRouterScreenClass: ConstructorTag](
+  def getWebRouterScreenName[C <: RouterScreenClass: ConstructorTag](
       implicit ctag: ClassTag[C]) = ctag.runtimeClass.getName
 }

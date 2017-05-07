@@ -1,0 +1,24 @@
+{
+  "name": "sr--test",
+  "version": "0.1.0",
+  "description": "sri test",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "scripts": {
+    "start": "webpack --watch & webpack-dev-server --progress --colors --port 8090",
+    "build": "webpack --watch"
+  },
+  "devDependencies": {
+    "jsdom-global": "2.1.1",
+    "webpack": "^1.9.10"
+  },
+  "dependencies": {
+    "history": "^4.6.1",
+    "jsdom": "10.1.0",
+    "react": "15.5.4",
+    "react-addons-test-utils": "15.5.1",
+    "react-dom": "15.5.4"
+  }
+}
