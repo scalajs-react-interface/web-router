@@ -14,7 +14,6 @@ object RouteUtils {
     // first check in static routes
     val pathname =
       if (loc.pathname == "/") "/" else loc.pathname.removeTrailingSlash
-    println(s"pathname : $pathname")
     val sr = ctrl.config.staticRoutes.find {
       case (sccrenKey, route) => route.path == pathname
     }
