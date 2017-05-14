@@ -15,9 +15,11 @@ object RouteUtils {
     val pathname =
       if (loc.pathname == "/") "/" else loc.pathname.removeTrailingSlash
     println(s"pathname : $pathname")
-    val sr = ctrl.config.staticRoutesByPath.get(pathname)
+    val sr = ctrl.config.staticRoutes.find {
+      case (sccrenKey, route) => route.path == pathname
+    }
     if (sr.isDefined) {
-      result = sr.get
+      result = sr.get._2
     } else {
       var values: js.Array[String] = null
       val dr = ctrl.config.dynamicRoutes.find {

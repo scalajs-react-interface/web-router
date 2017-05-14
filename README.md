@@ -1,4 +1,5 @@
 # Web Router 
 
+An extensive routing solution for web.
 
-#### WIP 
+[Docs](https://github.com/scalajs-react-interface/sri/blob/master/docs/WebRouter.md)

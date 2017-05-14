@@ -13,7 +13,7 @@ case class Route(screenKey: String,
                  component: js.Any,
                  path: String,
                  params: js.UndefOr[js.Object] = js.undefined,
-                 state: js.UndefOr[js.Object] = js.undefined,
+                 state: js.UndefOr[Any] = js.undefined,
                  keys: js.UndefOr[js.Array[PathRegExpKey]] = js.undefined,
                  pathRegexP: js.UndefOr[PathRegexp] = js.undefined,
                  toPath: js.UndefOr[PathFunction] = js.undefined,
@@ -39,7 +39,7 @@ class RouterContext extends ComponentP[Router.State] {
 object RouterContext {
 
   @JSExportStatic
-  val childContextTypes = routerContextTypes
+  val childContextTypes = contextTypes
 
   case class Props(ctrl: RouterCtrl)
 

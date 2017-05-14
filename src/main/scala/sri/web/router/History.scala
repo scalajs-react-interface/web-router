@@ -1,5 +1,7 @@
 package sri.web.router
 
+import sri.macros.{FunctionObjectMacro, OptDefault, OptionalParam}
+
 import scala.scalajs.js
 import scala.scalajs.js.annotation.{JSImport, JSName, ScalaJSDefined}
 
@@ -62,18 +64,45 @@ class Location(val pathname: String,
                val basename: js.UndefOr[String] = js.undefined,
                val hash: js.UndefOr[String] = js.undefined,
                val search: js.UndefOr[String] = js.undefined,
-               val state: js.UndefOr[js.Object] = js.undefined,
+               val state: js.UndefOr[Any] = js.undefined,
                val action: js.UndefOr[String] = js.undefined,
                val key: String = "")
     extends js.Object {}
 
 @ScalaJSDefined
-class HistoryOptions(val getUserConfirmation: js.UndefOr[js.Function] =
-                       js.undefined,
-                     val hashType: js.UndefOr[String] = js.undefined,
-                     val forceRefresh: js.UndefOr[Boolean] = js.undefined,
-                     val basename: js.UndefOr[String] = js.undefined)
-    extends js.Object
+trait HistoryOptions extends js.Object
+
+@ScalaJSDefined
+trait BrowserHistoryOptions extends HistoryOptions
+
+@ScalaJSDefined
+trait HashHistoryOptions extends HistoryOptions
+
+object BrowserHistoryOptions {
+
+  @inline
+  def apply(basename: OptionalParam[String] = OptDefault,
+            forceRefresh: OptionalParam[Boolean] = OptDefault,
+            keyLength: OptionalParam[Int] = OptDefault,
+            getUserConfirmation: OptionalParam[(String, js.Function) => _] =
+              OptDefault): BrowserHistoryOptions = {
+    val p = FunctionObjectMacro()
+    p.asInstanceOf[BrowserHistoryOptions]
+  }
+}
+
+object HashHistoryOptions {
+
+  @inline
+  def apply(basename: OptionalParam[String] = OptDefault,
+            keyLength: OptionalParam[Int] = OptDefault,
+            hashType: OptionalParam[String] = OptDefault,
+            getUserConfirmation: OptionalParam[(String, js.Function) => _] =
+              OptDefault): HashHistoryOptions = {
+    val p = FunctionObjectMacro()
+    p.asInstanceOf[HashHistoryOptions]
+  }
+}
 
 object HistoryFactory {
 
@@ -82,15 +111,18 @@ object HistoryFactory {
     * @param options
     * @return
     */
-  def browserHistory(options: js.UndefOr[HistoryOptions] = js.undefined) =
+  def browserHistory(
+      options: js.UndefOr[BrowserHistoryOptions] = js.undefined) =
     History.createHistory(options)
 
   /**
-    * use this only for development purpose
+    *
     * @param options
     * @return
     */
-  def hashHistory(options: js.UndefOr[HistoryOptions] = js.undefined) =
+  def hashHistory(options: js.UndefOr[HashHistoryOptions] = js.undefined) =
     History.createHashHistory(options)
 
+  def memoryHistory(options: js.UndefOr[HistoryOptions] = js.undefined) =
+    History.createMemoryHistory(options)
 }

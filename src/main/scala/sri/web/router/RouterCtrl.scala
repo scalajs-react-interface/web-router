@@ -16,15 +16,46 @@ final class RouterCtrl private[router] (val history: History,
 
   def previousRoute = _previousRoute
 
+  def navigate[C <: RouterScreenClass { type Params = Null }: js.ConstructorTag](
+      aaction: NavigationAction = NavigationAction.PUSH,
+      search: js.UndefOr[String] = js.undefined)(implicit ctag: ClassTag[C]) =
+    navigateStatic[C](action = aaction, search = search)
+
+  def navigateLS[C <: RouterScreenClass {
+    type Params = Null; type LocationState >: Null <: AnyRef
+  }: js.ConstructorTag](
+      state: C#LocationState,
+      aaction: NavigationAction = NavigationAction.PUSH,
+      search: js.UndefOr[String] = js.undefined)(implicit ctag: ClassTag[C]) =
+    navigateStatic[C](action = aaction, search = search, state = state)
+
+  def navigateP[C <: RouterScreenClass { type Params >: Null <: js.Object }: js.ConstructorTag](
+      params: C#Params,
+      aaction: NavigationAction = NavigationAction.PUSH,
+      search: js.UndefOr[String] = js.undefined)(implicit ctag: ClassTag[C]) =
+    navigateDynamic[C](params = params, action = aaction, search = search)
+
+  def navigatePLS[C <: RouterScreenClass {
+    type Params >: Null <: js.Object; type LocationState >: Null <: AnyRef
+  }: js.ConstructorTag](
+      params: C#Params,
+      state: C#LocationState,
+      aaction: NavigationAction = NavigationAction.PUSH,
+      search: js.UndefOr[String] = js.undefined)(implicit ctag: ClassTag[C]) =
+    navigateDynamic[C](params = params,
+                       action = aaction,
+                       search = search,
+                       state = state)
+
   /**
     * use this method to navigate to static pages ,it pushes new scene to the stack
     */
-  def navigate[C <: RouterScreenClass: js.ConstructorTag](
+  private def navigateStatic[C <: RouterScreenClass { type Params = Null }: js.ConstructorTag](
       action: NavigationAction = NavigationAction.PUSH,
       search: js.UndefOr[String] = js.undefined,
-      state: js.UndefOr[js.Object] = js.undefined)(
+      state: js.UndefOr[C#LocationState] = js.undefined)(
       implicit ctag: ClassTag[C]) = {
-    val screenKey = getWebRouterScreenName[C]
+    val screenKey = getRouterScreenName[C]
     config.staticRoutes.get(screenKey) match {
       case Some(route) => {
         val location =
@@ -36,13 +67,14 @@ final class RouterCtrl private[router] (val history: History,
     }
   }
 
-  def navigateDynamic[C <: RouterScreenClass { type Params <: js.Object }: js.ConstructorTag](
-      action: NavigationAction = NavigationAction.PUSH,
-      search: js.UndefOr[String] = js.undefined,
-      state: js.UndefOr[js.Object] = js.undefined,
-      params: js.UndefOr[C#Params] = js.undefined)(
+  private def navigateDynamic[C <: RouterScreenClass {
+    type Params >: Null <: js.Object
+  }: js.ConstructorTag](action: NavigationAction = NavigationAction.PUSH,
+                        search: js.UndefOr[String] = js.undefined,
+                        state: js.UndefOr[C#LocationState] = js.undefined,
+                        params: js.UndefOr[C#Params] = js.undefined)(
       implicit ctag: ClassTag[C]) = {
-    val screenKey = getWebRouterScreenName[C]
+    val screenKey = getRouterScreenName[C]
     config.dynamicRoutes.get(screenKey) match {
       case Some(route) => {
         val location =

@@ -6,24 +6,19 @@ import scala.reflect.ClassTag
 import scala.scalajs.js
 import scala.scalajs.js.ConstructorTag
 
-abstract class RouterConfig extends RouteDefinitions {
+abstract class RouterConfig extends RouteDefinitions with PathUtils {
 
-  private[router] var staticRoutes: Map[String, Route] = Map()
+  private[router] val staticRoutes: js.Dictionary[Route] = js.Dictionary()
 
-  private[router] var dynamicRoutes: Map[String, Route] = Map()
-
-  lazy val staticRoutesByPath: Map[String, Route] =
-    staticRoutes.map {
-      case (k, v) => (v.path, v)
-    }
+  private[router] val dynamicRoutes: js.Dictionary[Route] = js.Dictionary()
 
   val history: History
 
   val initialRoute: (String, Route)
 
-  def registerInitialScreen[C <: RouterScreenComponent[_, _]: ConstructorTag](
+  def registerInitialScreen[C <: RouterScreenClass: ConstructorTag](
       implicit ctag: ClassTag[C]) = {
-    val screenKey = getWebRouterScreenName[C]
+    val screenKey = getRouterScreenName[C]
     val r = screenKey -> Route(path = "/",
                                component = js.constructorTag[C].constructor,
                                screenKey = screenKey)
@@ -31,34 +26,52 @@ abstract class RouterConfig extends RouteDefinitions {
     r
   }
 
-  def registerScreen[C <: RouterScreenComponent[Null, _]: ConstructorTag](
+  def registerScreen[C <: RouterScreenClass { type Params = Null }: ConstructorTag](
       path: String)(implicit ctag: ClassTag[C]) = {
-    val page = getWebRouterScreenName[C]
-    val p =
-      if (path.startsWith("/")) s"/${path.tail.removeTrailingSlash}"
-      else s"/${path.removeTrailingSlash}"
-    staticRoutes += page -> Route(path = p,
-                                  component = js.constructorTag[C].constructor,
-                                  screenKey = page)
+    val screenKey = getRouterScreenName[C]
+    val p = prefixSlashAndRemoveTrailingSlashes(path)
+    staticRoutes(screenKey) = Route(path = p,
+                                    component =
+                                      js.constructorTag[C].constructor,
+                                    screenKey = screenKey)
   }
 
-  def registerDynamicScreen[
-      C <: RouterScreenComponent[_ <: js.Object, _]: ConstructorTag](
-      path: String)(implicit ctag: ClassTag[C]) = {
-    val screenKey = getWebRouterScreenName[C]
+  def registerDynamicScreen[C <: RouterScreenClass {
+    type Params >: Null <: js.Object
+  }: ConstructorTag](path: String)(implicit ctag: ClassTag[C]) = {
+    val screenKey = getRouterScreenName[C]
     val p =
-      if (path.startsWith("/")) s"/${path.tail.removeTrailingSlash}"
-      else s"/${path.removeTrailingSlash}"
+      prefixSlashAndRemoveTrailingSlashes(path)
     val keys: js.Array[PathRegExpKey] = js.Array()
     val pathRegexP = PathToRegexP(p, keys)
     val toPath = PathToRegexP.compile(p)
-    dynamicRoutes += screenKey -> Route(path = p,
-                                        component =
-                                          js.constructorTag[C].constructor,
-                                        keys = keys,
-                                        toPath = toPath,
-                                        pathRegexP = pathRegexP,
-                                        screenKey = screenKey)
+    dynamicRoutes(screenKey) = Route(path = p,
+                                     component =
+                                       js.constructorTag[C].constructor,
+                                     keys = keys,
+                                     toPath = toPath,
+                                     pathRegexP = pathRegexP,
+                                     screenKey = screenKey)
+  }
+
+  def registerModule(moduleConfig: RouterModuleConfig) = {
+    moduleConfig.staticRoutes.foreach {
+      case (screenKey, route) => {
+        staticRoutes(screenKey) = route
+      }
+    }
+
+    moduleConfig.dynamicRoutes.foreach {
+      case (screenKey, route) => {
+        val keys: js.Array[PathRegExpKey] = js.Array()
+        val pathRegexP = PathToRegexP(route.path, keys)
+        val toPath = PathToRegexP.compile(route.path)
+        dynamicRoutes(screenKey) =
+          route.copy(keys = keys, toPath = toPath, pathRegexP = pathRegexP)
+      }
+    }
+    moduleConfig.staticRoutes.clear()
+    moduleConfig.dynamicRoutes.clear()
   }
 
   /**
