@@ -36,7 +36,7 @@ object RouterExample {
   }
 
   @ScalaJSDefined
-  class HomeScreen extends RouterScreenComponentNoPS {
+  class HomeScreen extends RouterScreenComponentNoPSLS {
 
     def render() = {
       React.createElement("div", js.Dynamic.literal(), "home")
@@ -44,10 +44,9 @@ object RouterExample {
   }
 
   @ScalaJSDefined
-  class StaticStateScreen extends RouterScreenComponentNoPS {
+  class StaticStateScreen extends RouterScreenComponentNoPSLS {
 
     def render() = {
-      println(s"dude scond screen : ${navigation.currentRoute.state}")
       null
     }
   }

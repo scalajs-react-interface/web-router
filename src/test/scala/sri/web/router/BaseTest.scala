@@ -24,8 +24,6 @@ class BaseTest extends FunSuite with BeforeAndAfter with BeforeAndAfterAll {
     getShallowRenderer(element).getMountedInstance[T]()
   }
 
-  var domRegister: js.Function0[_] = null
-
   var app: dom.Element = null
   override protected def beforeAll(): Unit = {
     val jsdom = new JSDOM("<!doctype html><html><body></body></html>");
@@ -44,7 +42,5 @@ class BaseTest extends FunSuite with BeforeAndAfter with BeforeAndAfterAll {
     global.window.document.body.appendChild(app)
   }
 
-  override protected def afterAll(): Unit = {
-    domRegister() // cleanup
-  }
+  override protected def afterAll(): Unit = {}
 }
