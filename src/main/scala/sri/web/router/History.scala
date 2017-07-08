@@ -4,6 +4,7 @@ import sri.macros.{FunctionObjectMacro, OptDefault, OptionalParam}
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.{JSImport, JSName, ScalaJSDefined}
+import scala.scalajs.js.|
 
 @js.native
 trait History extends js.Object {
@@ -11,10 +12,9 @@ trait History extends js.Object {
   def listen(listener: js.Function2[Location, String, _]): js.Function0[_] =
     js.native
 
-  def block(listener: js.Function2[Location, String, _]): js.Function0[_] =
+  def block(
+      message: String | js.Function2[Location, String, _]): js.Function0[_] =
     js.native
-
-  def block(message: String): js.Function0[_] = js.native
 
   def push(location: Location): Unit = js.native
 
@@ -59,7 +59,6 @@ object History extends js.Object {
 
 }
 
-@ScalaJSDefined
 class Location(val pathname: String,
                val basename: js.UndefOr[String] = js.undefined,
                val hash: js.UndefOr[String] = js.undefined,
@@ -69,13 +68,10 @@ class Location(val pathname: String,
                val key: String = "")
     extends js.Object {}
 
-@ScalaJSDefined
 trait HistoryOptions extends js.Object
 
-@ScalaJSDefined
 trait BrowserHistoryOptions extends HistoryOptions
 
-@ScalaJSDefined
 trait HashHistoryOptions extends HistoryOptions
 
 object BrowserHistoryOptions {

@@ -1,20 +1,26 @@
 package sri.web.router
 
-import sri.core.{React, ReactElement}
+import org.scalajs.dom
+import sri.core.{
+  CreateElement,
+  JSProps,
+  React,
+  ReactElement,
+  ReactRenderNode,
+  ReactScalaClass
+}
 
 import scala.scalajs.js
 import scala.scalajs.js.JSON
-import scala.scalajs.js.annotation.ScalaJSDefined
+import scala.scalajs.js.annotation.{JSImport, JSName, ScalaJSDefined}
 
 object RouterExample {
-
-  var routerCtrl: RouterCtrl = null
+// for testing purpose
+  var navigation: RouterCtrl = null
   object Config extends RouterConfig {
     override val history: History = History.createMemoryHistory(js.undefined)
-    override val initialRoute: (String, Route) =
-      registerInitialScreen[HomeScreen]
-
-    registerScreen[StaticStateScreen]("staticsatte")
+    registerScreen[HomeScreen]("/")
+    registerScreen[StaticSecondScreen]("staticsatte")
 
     /**
       * this method is responsible for rendering components ,
@@ -22,8 +28,7 @@ object RouterExample {
       * @return
       */
     override def renderScene(ctrl: RouterCtrl): ReactElement = {
-      routerCtrl = ctrl
-      println(s"rendering current route : ${ctrl.currentRoute.screenKey}")
+      navigation = ctrl
       super.renderScene(ctrl)
     }
 
@@ -32,10 +37,10 @@ object RouterExample {
       *
       * @return
       */
-    override val notFound: RouteNotFound = RouteNotFound(initialRoute._1)
+    override val notFound: RouteNotFound = RouteNotFound(
+      getRouterScreenKey[HomeScreen])
   }
 
-  @ScalaJSDefined
   class HomeScreen extends RouterScreenComponentNoPSLS {
 
     def render() = {
@@ -43,12 +48,33 @@ object RouterExample {
     }
   }
 
-  @ScalaJSDefined
-  class StaticStateScreen extends RouterScreenComponentNoPSLS {
+  class StaticSecondScreen extends RouterScreenComponentNoPSLS {
 
     def render() = {
-      null
+      React.createElement("div", js.Dynamic.literal(), "second")
     }
+
   }
 
 }
+//case class SecondaryProps(name: String)
+//
+//trait SecondaryProps extends js.Object {
+//  val name: String
+//}
+//
+//class ExampleSecondary(val initialProps: SecondaryProps)
+//    extends ReactSecondary(initialProps) {
+//
+//  def render() = {
+//    println(s"Props : ${JSON.stringify(props.asInstanceOf[js.Any])}")
+//    println(s"JSProps : ${JSON.stringify(jsProps)}")
+////    println(s"jsProps : ${JSON.stringify(jsProps)}")
+//    React.createElement("div", js.Dynamic.literal(), s"second")
+//  }
+//}
+//
+//object ExampleSecondary {
+//
+//  def apply(props: SecondaryProps) = CreateElement[ExampleSecondary](props)
+//}

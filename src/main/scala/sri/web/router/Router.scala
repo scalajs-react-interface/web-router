@@ -1,17 +1,21 @@
 package sri.web.router
 
 import sri.core._
-import sri.universal._
 
 import scala.scalajs.js
-import scala.scalajs.js.annotation.{JSExportStatic, ScalaJSDefined}
+import scala.scalajs.js.annotation.JSExportStatic
 import scala.scalajs.js.|
 
 sealed trait WebPage
 
-case class Route(screenKey: String,
+@js.native
+trait RouterScreenKey extends js.Object
+
+case class Route(screenKey: RouterScreenKey,
                  component: js.Any,
                  path: String,
+                 title: String = "",
+                 secured: Boolean = false,
                  params: js.UndefOr[js.Object] = js.undefined,
                  state: js.UndefOr[Any] = js.undefined,
                  keys: js.UndefOr[js.Array[PathRegExpKey]] = js.undefined,
@@ -20,52 +24,72 @@ case class Route(screenKey: String,
                  search: js.UndefOr[String] = js.undefined,
                  action: js.UndefOr[String] = js.undefined)
 
-@ScalaJSDefined
-class RouterContext extends ComponentP[Router.State] {
+class RouterContext extends ComponentNotPureP[RouterCtrl] {
 
   def render() = {
-    props.location != null ?= {
-      RouteUtils.setCurrentRoute(props.location, props.ctrl)
-      props.ctrl.config
-        .renderScene(props.ctrl)
-    }
+    props.config
+      .renderScene(props)
   }
 
   def getChildContext() = {
-    js.Dictionary("routerctrl" -> props.ctrl)
+    js.Dictionary("navigation" -> props)
   }
 }
 
 object RouterContext {
 
   @JSExportStatic
-  val childContextTypes = contextTypes
+  val childContextTypes = navigationContext
 
   case class Props(ctrl: RouterCtrl)
 
-  def apply(props: Router.State,
+  def apply(props: RouterCtrl,
             key: String | Int = null,
             ref: js.Function1[RouterContext, Unit] = null) =
     CreateElement[RouterContext](props, key = key, ref = ref)
 
 }
 
-@ScalaJSDefined
-class Router extends Component[Router.Props, Router.State] {
+class Router extends ComponentP[Router.Props] {
   import Router._
+
+  var ctrl: RouterCtrl = null
 
   override def componentWillMount(): Unit = {
     val history = props.config.history
-    val ctrl = new RouterCtrl(history, props.config)
-    initialState(State(ctrl, history.location))
+    ctrl = new RouterCtrl(history, props.config)
     unlisten = history.listen((loc: Location, action: String) => {
-      setState((state: State) => state.copy(location = loc))
+      handleAuthAndSetCurrentRoute(loc, true)
     })
-
+    handleAuthAndSetCurrentRoute(history.location)
   }
 
-  override def render(): ReactElement = {
-    RouterContext(state)
+  def render() = {
+    RouterContext(ctrl)
+  }
+
+  def handleAuthAndSetCurrentRoute(loc: Location,
+                                   updateComponent: Boolean = false) = {
+    val route = RouteUtils.getRouteFromLocation(loc, ctrl)
+    if (ctrl.config.auth == null || !route.secured || (ctrl.config.auth
+          .validator())) {
+      if (ctrl._currentRoute != null && ctrl._currentRoute.action.isDefined)
+        ctrl._previousRoute = ctrl.currentRoute
+      ctrl._currentRoute = route
+      if (updateComponent) forceUpdate() // in location change scenario update the component
+    } else {
+      val loginRoute = ctrl.config.staticRoutes
+        .find {
+          case (key, _) => key == ctrl.config.auth.screenKey
+        }
+        .map(_._2)
+        .getOrElse(null) // come and talk to me if you have a use case for dynamic login url and yeah please register your login screen otherwise i will throw NPE(i am a bad guy you know)
+      val location =
+        new Location(pathname = loginRoute.path)
+      if (ctrl.config.auth.action == NavigationAction.REPLACE)
+        ctrl.config.history.replace(location)
+      else ctrl.config.history.push(location)
+    }
   }
 
   override def componentWillUnmount(): Unit = {
@@ -75,12 +99,12 @@ class Router extends Component[Router.Props, Router.State] {
   var unlisten: js.Function0[_] = null
 
 }
-object Router {
 
-  case class State(ctrl: RouterCtrl, location: Location)
+object Router {
 
   case class Props(config: RouterConfig)
 
+  @inline
   def apply(routerConfig: RouterConfig) =
     CreateElement[Router](Props(routerConfig))
 

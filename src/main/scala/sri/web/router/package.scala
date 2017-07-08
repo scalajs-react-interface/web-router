@@ -1,6 +1,5 @@
 package sri.web
 
-import sri.core.ReactElement
 import sri.universal.PropTypes
 
 import scala.reflect.ClassTag
@@ -9,8 +8,8 @@ import scala.scalajs.js.ConstructorTag
 
 package object router {
 
-  val contextTypes =
-    js.Dictionary("routerctrl" -> PropTypes.`object`.isRequired)
+  private[sri] val navigationContext =
+    js.Dictionary("navigation" -> PropTypes.`object`.isRequired)
 
   @inline def FORWARD_SLASH = "/"
 
@@ -26,6 +25,7 @@ package object router {
   }
 
   @inline
-  def getRouterScreenName[C <: RouterScreenClass: ConstructorTag](
-      implicit ctag: ClassTag[C]) = ctag.runtimeClass.getName
+  def getRouterScreenKey[C <: RouterScreenClass: ConstructorTag](
+      implicit ctag: ClassTag[C]): RouterScreenKey =
+    ctag.runtimeClass.getName.asInstanceOf[RouterScreenKey]
 }

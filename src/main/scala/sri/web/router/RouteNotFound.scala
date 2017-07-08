@@ -1,4 +1,4 @@
 package sri.web.router
 
-case class RouteNotFound(page: String,
+case class RouteNotFound(page: RouterScreenKey,
                          action: NavigationAction = NavigationAction.REPLACE)

@@ -3,15 +3,13 @@ package sri.web.router
 import sri.core._
 
 import scala.scalajs.js
-import scala.scalajs.js.annotation.ScalaJSDefined
+import scala.scalajs.js.annotation.JSExportStatic
 
-@ScalaJSDefined
 trait RouterScreenClass extends ReactClass {
   type Params <: js.Object
   type LocationState <: AnyRef
 }
 
-@ScalaJSDefined
 trait RouterScreenProps[Params <: js.Object] extends js.Object {
   val navigation: RouterCtrl
 }
@@ -20,7 +18,6 @@ trait RouterScreenProps[Params <: js.Object] extends js.Object {
   *
   * @tparam P
   */
-@ScalaJSDefined
 abstract class RouterScreenComponentP[P >: Null <: js.Object]
     extends RouterScreenComponent[P, Null, Null] {
 
@@ -29,26 +26,23 @@ abstract class RouterScreenComponentP[P >: Null <: js.Object]
     navigation.currentRoute.params.getOrElse(null).asInstanceOf[P]
 }
 
-@ScalaJSDefined
 abstract class RouterScreenComponentLS[LS >: Null <: AnyRef]
     extends RouterScreenComponent[Null, Null, LS] {
 
   @inline
-  def locationState: LS =
-    navigation.currentRoute.state.getOrElse(null).asInstanceOf[LS]
+  def locationState: js.UndefOr[LS] =
+    navigation.currentRoute.state.asInstanceOf[js.UndefOr[LS]]
 }
 
-@ScalaJSDefined
 abstract class RouterScreenComponentSLS[
     S >: Null <: AnyRef, LS >: Null <: AnyRef]
     extends RouterScreenComponent[Null, S, LS] {
 
   @inline
-  def locationState: LS =
-    navigation.currentRoute.state.getOrElse(null).asInstanceOf[LS]
+  def locationState: js.UndefOr[LS] =
+    navigation.currentRoute.state.asInstanceOf[js.UndefOr[LS]]
 }
 
-@ScalaJSDefined
 abstract class RouterScreenComponentPLS[
     P >: Null <: js.Object, LS >: Null <: AnyRef]
     extends RouterScreenComponent[P, Null, LS] {
@@ -57,10 +51,10 @@ abstract class RouterScreenComponentPLS[
   def params: P = navigation.currentRoute.params.get.asInstanceOf[P]
 
   @inline
-  def locationState: LS = navigation.currentRoute.state.get.asInstanceOf[LS]
+  def locationState: js.UndefOr[LS] =
+    navigation.currentRoute.state.asInstanceOf[js.UndefOr[LS]]
 }
 
-@ScalaJSDefined
 abstract class RouterScreenComponentPS[
     P >: Null <: js.Object, S >: Null <: AnyRef]
     extends RouterScreenComponent[P, S, Null] {
@@ -70,14 +64,11 @@ abstract class RouterScreenComponentPS[
 
 }
 
-@ScalaJSDefined
 abstract class RouterScreenComponentNoPSLS
     extends RouterScreenComponent[Null, Null, Null]
-@ScalaJSDefined
 abstract class RouterScreenComponentS[S >: Null <: AnyRef]
     extends RouterScreenComponent[Null, S, Null]
 
-@ScalaJSDefined
 abstract class RouterScreenComponent[P >: Nothing <: js.Object, S <: AnyRef,
 LS <: AnyRef](implicit ev: =:!=[P, Nothing])
     extends ComponentJS[RouterScreenProps[P], S]
@@ -87,43 +78,87 @@ LS <: AnyRef](implicit ev: =:!=[P, Nothing])
   @inline def navigation = props.navigation
 }
 
-@ScalaJSDefined
+sealed trait RouterAwareComponentClass extends ReactScalaClass {
+  override type ScalaPropsType <: AnyRef
+}
+
 abstract class RouterAwareComponent[P >: Null <: AnyRef, S >: Null <: AnyRef]
-    extends Component[P, S] {
+    extends Component[P, S]
+    with RouterAwareComponentClass {
 
   @inline
   def navigation: RouterCtrl =
-    context.routerctrl.asInstanceOf[RouterCtrl]
+    jsProps.asInstanceOf[js.Dynamic].navigation.asInstanceOf[RouterCtrl]
 
 }
 
-@ScalaJSDefined
 abstract class RouterAwareComponentP[P >: Null <: AnyRef]
-    extends ComponentP[P] {
+    extends ComponentP[P]
+    with RouterAwareComponentClass {
 
   @inline
   def navigation: RouterCtrl =
-    context.routerctrl.asInstanceOf[RouterCtrl]
+    jsProps.asInstanceOf[js.Dynamic].navigation.asInstanceOf[RouterCtrl]
 
 }
 
-@ScalaJSDefined
 abstract class RouterAwareComponentS[S >: Null <: AnyRef]
-    extends ComponentS[S] {
+    extends ComponentS[S]
+    with RouterAwareComponentClass {
 
   @inline
   def navigation: RouterCtrl =
-    context.routerctrl.asInstanceOf[RouterCtrl]
+    jsProps.asInstanceOf[js.Dynamic].navigation.asInstanceOf[RouterCtrl]
 
 }
 
-@ScalaJSDefined
+abstract class RouterAwareComponentNoPS
+    extends ComponentNoPS
+    with RouterAwareComponentClass {
+
+  @inline
+  def navigation: RouterCtrl =
+    jsProps.asInstanceOf[js.Dynamic].navigation.asInstanceOf[RouterCtrl]
+
+}
+
 abstract class RouterAwareComponentJS[
     P >: Null <: js.Object, S >: Null <: AnyRef]
     extends ComponentJS[P, S] {
 
   @inline
   def navigation: RouterCtrl =
-    context.routerctrl.asInstanceOf[RouterCtrl]
+    props.asInstanceOf[js.Dynamic].navigation.asInstanceOf[RouterCtrl]
 
+}
+class WithRouter extends ComponentP[WithRouter.Props] {
+
+  def render() = {
+    React.createElement(props.ctor,
+                        js.Dynamic.literal(scalaProps =
+                                             props.cProps.asInstanceOf[js.Any],
+                                           navigation = context.navigation))
+  }
+}
+
+object WithRouter {
+
+  @JSExportStatic
+  val contextTypes = navigationContext
+
+  case class Props(ctor: js.Any, cProps: Any)
+
+  @inline
+  def apply[C <: RouterAwareComponentClass {
+    type ScalaPropsType >: Null <: AnyRef
+  }: js.ConstructorTag](props: C#ScalaPropsType) = {
+    val ctor = js.constructorTag[C].constructor
+    CreateElement[WithRouter](Props(ctor, props))
+  }
+
+  @inline
+  def apply[C <: RouterAwareComponentClass { type ScalaPropsType = Null }: js.ConstructorTag]() = {
+    val ctor = js.constructorTag[C].constructor
+    CreateElement[WithRouter](Props(ctor, null))
+  }
 }

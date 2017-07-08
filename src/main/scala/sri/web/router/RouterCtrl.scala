@@ -7,7 +7,7 @@ final class RouterCtrl private[router] (val history: History,
                                         val config: RouterConfig) {
 
   private[router] var _currentRoute: Route =
-    config.initialRoute._2.asInstanceOf[Route]
+    null
 
   private[router] var _previousRoute: js.UndefOr[Route] =
     js.undefined
@@ -40,10 +40,10 @@ final class RouterCtrl private[router] (val history: History,
   }: js.ConstructorTag](
       params: C#Params,
       state: C#LocationState,
-      aaction: NavigationAction = NavigationAction.PUSH,
+      action: NavigationAction = NavigationAction.PUSH,
       search: js.UndefOr[String] = js.undefined)(implicit ctag: ClassTag[C]) =
     navigateDynamic[C](params = params,
-                       action = aaction,
+                       action = action,
                        search = search,
                        state = state)
 
@@ -55,8 +55,8 @@ final class RouterCtrl private[router] (val history: History,
       search: js.UndefOr[String] = js.undefined,
       state: js.UndefOr[C#LocationState] = js.undefined)(
       implicit ctag: ClassTag[C]) = {
-    val screenKey = getRouterScreenName[C]
-    config.staticRoutes.get(screenKey) match {
+    val screenKey = getRouterScreenKey[C]
+    config.staticRoutes.get(screenKey.toString) match {
       case Some(route) => {
         val location =
           new Location(pathname = route.path, search = search, state = state)
@@ -74,8 +74,8 @@ final class RouterCtrl private[router] (val history: History,
                         state: js.UndefOr[C#LocationState] = js.undefined,
                         params: js.UndefOr[C#Params] = js.undefined)(
       implicit ctag: ClassTag[C]) = {
-    val screenKey = getRouterScreenName[C]
-    config.dynamicRoutes.get(screenKey) match {
+    val screenKey = getRouterScreenKey[C]
+    config.dynamicRoutes.get(screenKey.toString) match {
       case Some(route) => {
         val location =
           new Location(pathname = route.toPath.get(params),
@@ -95,7 +95,7 @@ final class RouterCtrl private[router] (val history: History,
   private def handleNotFound() = {
     val location = new Location(
       pathname = config.staticRoutes
-        .getOrElse(config.notFound.page, config.initialRoute._2)
+        .getOrElse(config.notFound.page.toString, config.staticRoutes.head._2)
         .path)
     if (config.notFound.action == NavigationAction.REPLACE)
       history.replace(location)

@@ -2,7 +2,6 @@ package sri.web.router
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
-import scala.scalajs.js.|
 
 @js.native
 trait PathRegexp extends js.Object {

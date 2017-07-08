@@ -11,4 +11,6 @@ object NavigationAction {
 
   @inline def REPLACE = "REPLACE".asInstanceOf[NavigationAction]
 
+  @inline def POP = "POP".asInstanceOf[NavigationAction]
+
 }

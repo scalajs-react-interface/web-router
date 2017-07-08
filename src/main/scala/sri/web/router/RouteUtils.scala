@@ -3,14 +3,12 @@ package sri.web.router
 import sri.universal._
 
 import scala.scalajs.js
-import scala.scalajs.js.annotation.ScalaJSDefined
 
 object RouteUtils {
 
-  def setCurrentRoute(loc: Location, ctrl: RouterCtrl) = {
+  def getRouteFromLocation(loc: Location, ctrl: RouterCtrl): Route = {
     var result: Route = null
-    var placeholder = ""
-    var params: js.UndefOr[js.Object] = js.undefined
+    var paramsLocal: js.UndefOr[js.Object] = js.undefined
     // first check in static routes
     val pathname =
       if (loc.pathname == "/") "/" else loc.pathname.removeTrailingSlash
@@ -37,19 +35,17 @@ object RouteUtils {
             (key.name, values(index + 1))
           }
         }
-        params = js.Dictionary(pairs: _*).asInstanceOf[js.Object]
+        paramsLocal = js.Dictionary(pairs: _*).asInstanceOf[js.Object]
       } else {
         result = ctrl.config.staticRoutes
-          .getOrElse(ctrl.config.notFound.page, ctrl.config.initialRoute._2)
+          .getOrElse(ctrl.config.notFound.page.toString,
+                     ctrl.config.staticRoutes.head._2)
       }
     }
-    if (ctrl._currentRoute.action.isDefined)
-      ctrl._previousRoute = ctrl.currentRoute
-    result = result.copy(action = loc.action,
-                         search = loc.search,
-                         state = loc.state,
-                         params = params)
-    ctrl._currentRoute = result
+    result.copy(action = loc.action,
+                search = loc.search,
+                state = loc.state,
+                params = paramsLocal)
   }
 
 }

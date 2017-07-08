@@ -1,7 +1,5 @@
 package sri.web.router
 
-import sri.core.ReactElement
-
 import scala.reflect.ClassTag
 import scala.scalajs.js
 import scala.scalajs.js.ConstructorTag
@@ -13,26 +11,32 @@ abstract class RouterModuleConfig(val moduleName: String) extends PathUtils {
   private[router] val dynamicRoutes: js.Dictionary[Route] = js.Dictionary()
 
   def registerScreen[C <: RouterScreenClass { type Params = Null }: ConstructorTag](
-      path: String)(implicit ctag: ClassTag[C]) = {
-    val screenKey = getRouterScreenName[C]
+      path: String,
+      secured: Boolean = true,
+      title: String = "")(implicit ctag: ClassTag[C]) = {
+    val screenKey = getRouterScreenKey[C]
     val p = "/" + moduleName + prefixSlashAndRemoveTrailingSlashes(path)
-    staticRoutes(screenKey) = Route(path = p,
-                                    component =
-                                      js.constructorTag[C].constructor,
-                                    screenKey = screenKey)
+    staticRoutes(screenKey.toString) = Route(
+      path = p,
+      component = js.constructorTag[C].constructor,
+      title = title,
+      screenKey = screenKey)
   }
 
   def registerDynamicScreen[C <: RouterScreenClass {
     type Params >: Null <: js.Object
-  }: ConstructorTag](path: String)(implicit ctag: ClassTag[C]) = {
-    val screenKey = getRouterScreenName[C]
+  }: ConstructorTag](path: String,
+                     secured: Boolean = true,
+                     title: String = "")(implicit ctag: ClassTag[C]) = {
+    val screenKey = getRouterScreenKey[C]
     val p =
       prefixSlashAndRemoveTrailingSlashes(moduleName) + prefixSlashAndRemoveTrailingSlashes(
         path)
-    dynamicRoutes(screenKey) = Route(path = p,
-                                     component =
-                                       js.constructorTag[C].constructor,
-                                     screenKey = screenKey)
+    dynamicRoutes(screenKey.toString) = Route(
+      path = p,
+      title = title,
+      component = js.constructorTag[C].constructor,
+      screenKey = screenKey)
   }
 
   def registerModule(moduleConfig: RouterModuleConfig) = {

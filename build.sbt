@@ -1,6 +1,6 @@
 name := "web-router"
 
-//version := "2017.5.0-SNAPSHOT"
+//version := "2017.7.0-SNAPSHOT"
 
 enablePlugins(ScalaJSPlugin)
 
@@ -22,8 +22,8 @@ scalacOptions ++= Seq(
 //deps
 
 libraryDependencies ++= Seq(
-  "scalajs-react-interface" %%% "core" % "2017.4.23-beta" % Provided,
-  "scalajs-react-interface" %%% "universal" % "2017.5.2-beta" % Provided)
+  "scalajs-react-interface" %%% "core" % "2017.7.9-RC" % Provided,
+  "scalajs-react-interface" %%% "universal" % "2017.7.9-RC" % Provided)
 
 //bintray
 resolvers += Resolver.jcenterRepo
@@ -40,10 +40,43 @@ bintrayRepository := "maven"
 publishArtifact in Test := false
 
 //Test
-scalaJSModuleKind in Test := ModuleKind.CommonJSModule
-resolvers += Resolver.bintrayRepo("scalajs-react-interface", "maven")
-libraryDependencies ++= Seq(
-  "org.scalatest" %%% "scalatest" % "3.0.0" % Test,
-  "scalajs-react-interface" %%% "web" % "2017.3.26-beta" % Test)
 
-scalaJSStage in Global := FastOptStage
+resolvers += Resolver.bintrayRepo("scalajs-react-interface", "maven")
+scalaJSUseMainModuleInitializer in Test := true
+
+scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule))
+
+val TEST_FILE = s"./sjs.test.js"
+
+artifactPath in Test in fastOptJS := new File(TEST_FILE)
+artifactPath in Test in fullOptJS := new File(TEST_FILE)
+
+val testDev = Def.taskKey[Unit]("test in dev mode")
+val testProd = Def.taskKey[Unit]("test in prod mode")
+
+testDev := {
+  (fastOptJS in Test).value
+  runJest()
+}
+
+testProd := {
+  (fullOptJS in Test).value
+  runJest()
+}
+
+def runJest() = {
+  import sys.process._
+  val jestResult = "npm test".!
+  if (jestResult != 0) throw new IllegalStateException("Jest Suite failed")
+}
+
+resolvers += Resolver.bintrayRepo("scalajs-react-interface", "maven")
+resolvers += Resolver.bintrayRepo("scalajs-jest", "maven")
+
+libraryDependencies ++= Seq(
+  "org.scala-js" %%% "scalajs-dom" % "0.9.3" % Test,
+  "scalajs-jest" %%% "core" % "2017.7.9-beta" % Test,
+  "scalajs-react-interface" %%% "web" % "2017.7.9-RC" % Test
+)
+//scalaJSStage in Global := FastOptStage
+scalaJSStage in Global := FullOptStage
