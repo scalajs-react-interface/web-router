@@ -12,16 +12,14 @@ class RouterTest extends BaseTest {
                     dom.document.getElementById("app"))
   }
 
-  test("should render home component on initial render", () => {
+  test("should render home component on initial render") {
     render()
     expect(dom.document.body.textContent).toBe("home")
-  })
+  }
   test(
-    "should render second screen",
-    () => {
+    "should render second screen"){
       render()
       RouterExample.navigation.navigate[StaticSecondScreen]()
       expect(dom.document.body.textContent).toBe("second")
     }
-  )
 }

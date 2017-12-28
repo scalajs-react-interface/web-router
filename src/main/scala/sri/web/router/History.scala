@@ -1,9 +1,9 @@
 package sri.web.router
 
-import sri.macros.{FunctionObjectMacro, OptDefault, OptionalParam}
-
+import scalajsplus.{OptDefault, OptionalParam}
+import scalajsplus.macros.FunctionObjectMacro
 import scala.scalajs.js
-import scala.scalajs.js.annotation.{JSImport, JSName, ScalaJSDefined}
+import scala.scalajs.js.annotation.{JSImport, JSName}
 import scala.scalajs.js.|
 
 @js.native

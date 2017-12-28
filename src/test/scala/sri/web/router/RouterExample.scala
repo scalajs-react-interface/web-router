@@ -6,13 +6,12 @@ import sri.core.{
   JSProps,
   React,
   ReactElement,
-  ReactRenderNode,
   ReactScalaClass
 }
 
 import scala.scalajs.js
 import scala.scalajs.js.JSON
-import scala.scalajs.js.annotation.{JSImport, JSName, ScalaJSDefined}
+import scala.scalajs.js.annotation.{JSImport, JSName}
 
 object RouterExample {
 // for testing purpose
