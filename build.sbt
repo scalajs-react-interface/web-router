@@ -1,6 +1,6 @@
 name := "web-router"
 
-//version := "2017.12.0-SNAPSHOT"
+//version := "2018.1.0-SNAPSHOT"
 
 enablePlugins(ScalaJSPlugin)
 
@@ -21,8 +21,8 @@ scalacOptions ++= Seq(
 //deps
 
 libraryDependencies ++= Seq(
-  "scalajs-react-interface" %%% "core" % "2017.12.28-RC" % Provided,
-  "scalajs-react-interface" %%% "universal" % "2017.12.28-RC" % Provided)
+  "scalajs-react-interface" %%% "core" % "2018.2.2-RC" % Provided,
+  "scalajs-react-interface" %%% "universal" % "2018.2.2-RC" % Provided)
 
 //bintray
 resolvers += Resolver.jcenterRepo
@@ -75,8 +75,8 @@ resolvers ++=Seq(Resolver.bintrayRepo("scalajs-react-interface", "maven"),
 
 libraryDependencies ++= Seq(
   "org.scala-js" %%% "scalajs-dom" % "0.9.4" % Test,
-  "scalajs-jest" %%% "core" % "2017.12.27-RC" % Test,
-  "scalajs-react-interface" %%% "web" % "2017.12.28-RC" % Test
+  "scalajs-jest" %%% "core" % "2018.2.2-RC" % Test,
+  "scalajs-react-interface" %%% "web" % "2018.2.2-RC" % Test
 )
 //scalaJSStage in Global := FastOptStage
 scalaJSStage in Global := FullOptStage

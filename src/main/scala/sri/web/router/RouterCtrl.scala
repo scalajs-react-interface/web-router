@@ -88,6 +88,24 @@ final class RouterCtrl private[router] (val history: History,
     }
   }
 
+  /**
+    * use this method to navigate to static pages using screenKey
+    */
+  def navigateWithKey(screenKey: RouterScreenKey,
+                      action: NavigationAction = NavigationAction.PUSH,
+                      search: js.UndefOr[String] = js.undefined,
+  ) = {
+    config.staticRoutes.get(screenKey.toString) match {
+      case Some(route) => {
+        val location =
+          new Location(pathname = route.path, search = search)
+        if (action == NavigationAction.REPLACE) history.replace(location)
+        else history.push(location)
+      }
+      case None => handleNotFound()
+    }
+  }
+
   def navigateBack() = history.goBack()
 
   def navigateForward() = history.goForward()
