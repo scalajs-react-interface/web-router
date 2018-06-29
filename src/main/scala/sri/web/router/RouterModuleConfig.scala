@@ -16,24 +16,25 @@ abstract class RouterModuleConfig(val moduleName: String) extends PathUtils {
       title: String = "")(implicit ctag: ClassTag[C]) = {
     val screenKey = getRouterScreenKey[C]
     val p = "/" + moduleName + prefixSlashAndRemoveTrailingSlashes(path)
-    staticRoutes(screenKey.toString) = Route(
-      path = p,
-      component = js.constructorTag[C].constructor,
-      title = title,
-      screenKey = screenKey)
+    staticRoutes(screenKey.toString) = Route(path = p,
+                                             secured = secured,
+                                             component =
+                                               js.constructorTag[C].constructor,
+                                             title = title,
+                                             screenKey = screenKey)
   }
 
   def registerDynamicScreen[C <: RouterScreenClass {
     type Params >: Null <: js.Object
-  }: ConstructorTag](path: String,
-                     secured: Boolean = true,
-                     title: String = "")(implicit ctag: ClassTag[C]) = {
+  }: ConstructorTag](path: String, secured: Boolean = true, title: String = "")(
+      implicit ctag: ClassTag[C]) = {
     val screenKey = getRouterScreenKey[C]
     val p =
       prefixSlashAndRemoveTrailingSlashes(moduleName) + prefixSlashAndRemoveTrailingSlashes(
         path)
     dynamicRoutes(screenKey.toString) = Route(
       path = p,
+      secured = secured,
       title = title,
       component = js.constructorTag[C].constructor,
       screenKey = screenKey)

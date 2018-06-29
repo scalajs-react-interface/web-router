@@ -1,6 +1,6 @@
 name := "web-router"
 
-//version := "2018.1.0-SNAPSHOT"
+//version := "2018.6.0-SNAPSHOT"
 
 enablePlugins(ScalaJSPlugin)
 
