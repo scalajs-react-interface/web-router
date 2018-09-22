@@ -17,23 +17,23 @@ final class RouterCtrl private[router] (val history: History,
   def previousRoute = _previousRoute
 
   def navigate[C <: RouterScreenClass { type Params = Null }: js.ConstructorTag](
-      aaction: NavigationAction = NavigationAction.PUSH,
+      action: NavigationAction = NavigationAction.PUSH,
       search: js.UndefOr[String] = js.undefined)(implicit ctag: ClassTag[C]) =
-    navigateStatic[C](action = aaction, search = search)
+    navigateStatic[C](action = action, search = search)
 
   def navigateLS[C <: RouterScreenClass {
     type Params = Null; type LocationState >: Null <: AnyRef
   }: js.ConstructorTag](
       state: C#LocationState,
-      aaction: NavigationAction = NavigationAction.PUSH,
+      action: NavigationAction = NavigationAction.PUSH,
       search: js.UndefOr[String] = js.undefined)(implicit ctag: ClassTag[C]) =
-    navigateStatic[C](action = aaction, search = search, state = state)
+    navigateStatic[C](action = action, search = search, state = state)
 
   def navigateP[C <: RouterScreenClass { type Params >: Null <: js.Object }: js.ConstructorTag](
       params: C#Params,
-      aaction: NavigationAction = NavigationAction.PUSH,
+      action: NavigationAction = NavigationAction.PUSH,
       search: js.UndefOr[String] = js.undefined)(implicit ctag: ClassTag[C]) =
-    navigateDynamic[C](params = params, action = aaction, search = search)
+    navigateDynamic[C](params = params, action = action, search = search)
 
   def navigatePLS[C <: RouterScreenClass {
     type Params >: Null <: js.Object; type LocationState >: Null <: AnyRef
