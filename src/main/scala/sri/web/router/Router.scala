@@ -27,21 +27,17 @@ case class Route(screenKey: RouterScreenKey,
 class RouterContext extends ComponentNotPureP[RouterCtrl] {
 
   def render() = {
-    props.config
-      .renderScene(props)
+    navigationContext.Provider(
+      js.Dynamic.literal("navigation" -> props.asInstanceOf[js.Any]))(
+      props.config
+        .renderScene(props)
+    )
+
   }
 
-  def getChildContext() = {
-    js.Dictionary("navigation" -> props)
-  }
 }
 
 object RouterContext {
-
-  @JSExportStatic
-  val childContextTypes = navigationContext
-
-  case class Props(ctrl: RouterCtrl)
 
   def apply(props: RouterCtrl,
             key: String | Int = null,

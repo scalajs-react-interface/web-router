@@ -144,7 +144,7 @@ class WithRouter extends ComponentP[WithRouter.Props] {
 object WithRouter {
 
   @JSExportStatic
-  val contextTypes = navigationContext
+  val contextType = navigationContext
 
   case class Props(ctor: js.Any, cProps: Any)
 

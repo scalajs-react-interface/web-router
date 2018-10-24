@@ -1,5 +1,6 @@
 package sri.web
 
+import sri.core.React
 import sri.universal.PropTypes
 
 import scala.reflect.ClassTag
@@ -9,7 +10,7 @@ import scala.scalajs.js.ConstructorTag
 package object router {
 
   private[sri] val navigationContext =
-    js.Dictionary("navigation" -> PropTypes.`object`.isRequired)
+    React.createContext[js.Object](null)
 
   @inline def FORWARD_SLASH = "/"
 
